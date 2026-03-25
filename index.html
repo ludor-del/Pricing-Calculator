@@ -6,9 +6,11 @@
     <title>Odoo Precision Quote Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom Toggle Style */
         .toggle-checkbox:checked { right: 0; border-color: #68D391; }
         .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+        @media print {
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 p-4 md:p-10 font-sans text-slate-800">
@@ -19,7 +21,7 @@
                 <p class="text-slate-500 text-lg">Success Pack Update: 15% Implementation Discount Active</p>
             </div>
             
-            <div class="flex items-center space-x-3 bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center space-x-3 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 no-print">
                 <span class="text-xs font-bold uppercase text-slate-400">USD</span>
                 <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
                     <input type="checkbox" name="toggle" id="currency_toggle" onchange="calculate()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer outline-none transition-all duration-300 right-6"/>
@@ -33,7 +35,7 @@
             <div class="lg:col-span-2 space-y-6">
                 <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
                     <h2 class="text-xl font-bold mb-4 text-purple-700">1. Software & Contract</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Plan</label>
                             <select id="plan" class="w-full border p-3 rounded-xl bg-slate-50 font-semibold" onchange="calculate()">
@@ -48,7 +50,7 @@
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Duration</label>
                             <select id="term" class="w-full border p-3 rounded-xl bg-slate-50 font-semibold" onchange="calculate()">
-                                <option value="0">Monthly (12-Mo Promo)</option>
+                                <option value="0">Monthly (Promo)</option>
                                 <option value="1">1 Year Contract</option>
                                 <option value="2">2 Year Contract</option>
                                 <option value="3" selected>3 Year Contract</option>
@@ -56,78 +58,12 @@
                                 <option value="5">5 Year Contract</option>
                             </select>
                         </div>
-                    </div>
-                </section>
-
-                <section id="comparison_section" class="hidden bg-indigo-900 p-6 rounded-2xl shadow-xl text-white">
-                    <h2 class="text-lg font-bold mb-4 border-b border-indigo-700 pb-2 text-indigo-100">Annual Value Comparison</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-indigo-800/50 p-4 rounded-xl border border-indigo-600">
-                            <p class="text-[10px] uppercase font-black text-indigo-300 tracking-widest mb-1">Staying Monthly</p>
-                            <p class="text-xl font-bold" id="monthly_comp_cost"></p>
-                        </div>
-                        <div class="bg-emerald-600 p-4 rounded-xl border border-emerald-500 shadow-lg">
-                            <p class="text-[10px] uppercase font-black text-emerald-100 tracking-widest mb-1">Annual Commitment</p>
-                            <p class="text-xl font-bold" id="annual_comp_cost"></p>
-                            <p class="text-xs text-emerald-50 mt-1 font-bold" id="annual_comp_savings"></p>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-blue-700">2. Odoo.SH Hosting</h2>
-                            <input type="checkbox" id="sh_toggle" class="w-6 h-6 accent-blue-600 cursor-pointer" onchange="calculate()" checked>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
-                                <span id="worker_label">Workers ($16.00/mo)</span>
-                                <input type="number" id="workers" value="1" min="1" class="w-16 border p-1 rounded text-center" oninput="calculate()">
+                        <div id="discount_container" class="hidden">
+                            <label class="block text-xs font-bold uppercase text-blue-500 mb-1">Yr 2+ Discount %</label>
+                            <div class="relative">
+                                <input type="number" id="manual_discount" value="0" min="0" max="100" class="w-full border p-3 rounded-xl font-semibold outline-none border-blue-200 bg-blue-50 focus:ring-2 focus:ring-blue-500" oninput="calculate()">
+                                <span class="absolute right-3 top-3 font-bold text-blue-400">%</span>
                             </div>
-                            <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
-                                <span id="storage_label">Storage ($0.20/GB)</span>
-                                <input type="number" id="storage" value="5" min="1" class="w-16 border p-1 rounded text-center" oninput="calculate()">
-                            </div>
-                            <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
-                                <span id="staging_label">Staging ($14.40/mo)</span>
-                                <input type="number" id="staging" value="1" min="0" class="w-16 border p-1 rounded text-center" oninput="calculate()">
-                            </div>
-                        </div>
-                    </section>
-                    <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 text-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-emerald-700">3. Success Pack</h2>
-                            <input type="checkbox" id="imp_toggle" class="w-6 h-6 accent-emerald-600 cursor-pointer" onchange="calculate()" checked>
-                        </div>
-                        <select id="pack" class="w-full border p-3 rounded-xl bg-slate-50 font-semibold cursor-pointer" onchange="calculate()">
-                            <option value="580">4 Hours</option>
-                            <option value="3600">25 Hours</option>
-                            <option value="7000">50 Hours</option>
-                            <option value="12500" selected>100 Hours</option>
-                            <option value="25000">200 Hours</option>
-                        </select>
-                        <p class="text-[10px] text-emerald-600 font-bold mt-2 uppercase italic">* 15% Partner Discount Applied</p>
-                    </section>
-                </div>
-
-                <section id="finance_section" class="bg-slate-800 p-6 rounded-2xl shadow-xl text-white border-l-8 border-emerald-500">
-                    <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
-                        <h2 class="text-xl font-bold">Financing Options</h2>
-                        <div class="inline-flex rounded-md shadow-sm">
-                            <button onclick="setAPR(0.08)" id="apr8" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-l-lg bg-slate-700">8%</button>
-                            <button onclick="setAPR(0.10)" id="apr10" class="px-4 py-2 text-xs font-bold border-t border-b border-slate-600">10%</button>
-                            <button onclick="setAPR(0.12)" id="apr12" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-r-lg">12%</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-slate-400 text-xs">Financed Monthly Payment:</p>
-                            <p class="text-3xl font-black text-emerald-400" id="finance_payment"></p>
-                        </div>
-                        <div class="text-xs text-slate-300">
-                            <p>Term: <span id="finance_term_label" class="font-bold text-white"></span> Months</p>
-                            <p>Rate: <span id="finance_apr_label" class="font-bold text-emerald-400"></span></p>
                         </div>
                     </div>
                 </section>
@@ -154,23 +90,24 @@
                 <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl border-t-8 border-purple-600">
                     <h2 class="text-xl font-bold mb-6 text-slate-300">Investment Summary</h2>
                     <div id="grandTotal" class="text-5xl font-black text-white mb-2">$0.00</div>
-                    <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-3 mb-6">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Total Program Savings</p>
-                        <p id="totalSavings" class="text-2xl font-black text-emerald-400"></p>
-                    </div>
-
-                    <div id="side_finance_card" class="bg-slate-800 p-5 rounded-xl border border-slate-700 mb-8 text-center">
-                        <p class="text-[10px] text-slate-400 uppercase font-black mb-1 tracking-widest text-center">Financed Price</p>
-                        <p id="side_finance_payment" class="text-2xl font-bold text-emerald-400"></p>
-                        <p id="side_apr_note" class="text-[10px] text-slate-500 italic"></p>
+                    
+                    <div class="space-y-2 mb-6">
+                        <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-3">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Total Program Savings</p>
+                            <p id="totalSavings" class="text-2xl font-black text-emerald-400"></p>
+                        </div>
+                        <div id="negotiated_savings_card" class="hidden bg-blue-500/10 border border-blue-500/50 rounded-xl p-3">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-blue-400">Negotiated Yr 2+ Savings</p>
+                            <p id="negotiatedSavings" class="text-2xl font-black text-blue-400"></p>
+                        </div>
                     </div>
 
                     <div class="space-y-4 text-sm border-t border-slate-800 pt-6 mb-6">
-                        <div class="flex justify-between text-slate-400">Software Subtotal<span id="side_soft" class="text-white font-mono"></span></div>
-                        <div class="flex justify-between text-slate-400">Hosting Subtotal<span id="side_sh" class="text-white font-mono"></span></div>
+                        <div class="flex justify-between text-slate-400">Software Total<span id="side_soft" class="text-white font-mono"></span></div>
+                        <div class="flex justify-between text-slate-400">Hosting Total<span id="side_sh" class="text-white font-mono"></span></div>
                         <div class="flex justify-between text-slate-400">Implementation<span id="side_imp" class="text-white font-mono text-emerald-400"></span></div>
                     </div>
-                    <button onclick="window.print()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-xl shadow-lg">PRINT QUOTE</button>
+                    <button onclick="window.print()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-xl shadow-lg no-print">PRINT QUOTE</button>
                 </div>
             </div>
         </div>
@@ -178,19 +115,7 @@
 
     <script>
         let currentAPR = 0.08;
-        
-        // --- MANUAL CONVERSION RATE ---
-        // Change this value whenever you want to update the CAD rate
         const CAD_RATE = 1.38; 
-
-        function setAPR(val) {
-            currentAPR = val;
-            [0.08, 0.10, 0.12].forEach(rate => {
-                const btn = document.getElementById('apr' + (rate * 100));
-                rate === val ? btn.classList.add('bg-slate-700') : btn.classList.remove('bg-slate-700');
-            });
-            calculate();
-        }
 
         function formatCurrency(val) {
             const isCAD = document.getElementById('currency_toggle').checked;
@@ -202,90 +127,76 @@
         function calculate() {
             const isCAD = document.getElementById('currency_toggle').checked;
             const rate = isCAD ? CAD_RATE : 1;
-
+            const term = parseInt(document.getElementById('term').value);
             const plan = document.getElementById('plan').value;
             const users = parseInt(document.getElementById('users').value) || 0;
-            const term = parseInt(document.getElementById('term').value);
-            const shOn = document.getElementById('sh_toggle').checked;
-            const impOn = document.getElementById('imp_toggle').checked;
-            
+            const impOn = true; // Hardcoded for this view
+            const manualDiscountPercent = (term >= 2) ? (parseFloat(document.getElementById('manual_discount').value) || 0) : 0;
+
+            document.getElementById('discount_container').classList.toggle('hidden', term < 2);
+            document.getElementById('negotiated_savings_card').classList.toggle('hidden', manualDiscountPercent <= 0);
+
             const rates = {
                 standard: { annual: 373.00, monthly: 38.90, discount: 0.1967 },
                 custom: { annual: 732.00, monthly: 76.20, discount: 0.1994 }
             };
             const selected = rates[plan];
 
-            // Update Labels
-            document.getElementById('worker_label').innerText = `Workers (${formatCurrency(16.00 * rate)}/mo)`;
-            document.getElementById('storage_label').innerText = `Storage (${formatCurrency(0.20 * rate)}/GB)`;
-            document.getElementById('staging_label').innerText = `Staging (${formatCurrency(14.40 * rate)}/mo)`;
-
-            // Implementation Cost
             const grossImpPack = (parseFloat(document.getElementById('pack').value) || 0) * rate;
-            const finalImpCost = impOn ? (grossImpPack * 0.85) : 0;
-            const impSavings = impOn ? (grossImpPack * 0.15) : 0;
+            const finalImpCost = (grossImpPack * 0.85);
+            const impSavings = (grossImpPack * 0.15);
 
-            const shMo = shOn ? ((parseInt(document.getElementById('workers').value) * 16.00) +
-                              (parseInt(document.getElementById('storage').value) * 0.20) +
-                              (parseInt(document.getElementById('staging').value) * 14.40)) * rate : 0;
+            const shMo = ((parseInt(document.getElementById('workers').value) * 16.00) +
+                          (parseInt(document.getElementById('storage').value) * 0.20) +
+                          (parseInt(document.getElementById('staging').value) * 14.40)) * rate;
 
             let timelineHtml = "";
             let totalSoft = 0;
             let totalSh = 0;
-            let softwareSavings = 0;
-
-            const isFinancingEligible = term >= 2;
-            const isOneYear = term === 1;
-
-            document.getElementById('finance_section').style.display = isFinancingEligible ? 'block' : 'none';
-            document.getElementById('side_finance_card').style.display = isFinancingEligible ? 'block' : 'none';
-            document.getElementById('comparison_section').style.display = isOneYear ? 'block' : 'none';
+            let totalPromoSavings = 0;
+            let totalNegotiatedSavings = 0;
 
             if (term === 0) {
                 const sBase = (selected.monthly * users) * rate;
                 const sDisc = ((selected.monthly * (1 - selected.discount)) * users) * rate;
-                totalSoft = sDisc; totalSh = shMo;
-                softwareSavings = sBase - sDisc;
+                totalSoft = sDisc;
+                totalPromoSavings = sBase - sDisc;
                 timelineHtml = `<tr class="bg-emerald-50"><td class="py-4 px-2 font-bold text-emerald-800">Month 1 (Promo)</td><td class="text-center font-mono">${formatCurrency(sDisc)}</td><td class="text-center font-mono">${formatCurrency(shMo)}</td><td class="text-right font-bold text-emerald-900">${formatCurrency(sDisc + shMo)}</td></tr>`;
             } else {
                 for (let i = 1; i <= term; i++) {
                     const isY1 = (i === 1);
                     const annualBase = (selected.annual * users) * rate;
-                    const sCost = isY1 ? ((selected.annual * (1 - selected.discount) * users) * rate) : annualBase;
-                    if(isY1) softwareSavings = annualBase - sCost;
+                    
+                    let sCost;
+                    if (isY1) {
+                        sCost = (selected.annual * (1 - selected.discount) * users) * rate;
+                        totalPromoSavings += (annualBase - sCost);
+                    } else {
+                        sCost = annualBase * (1 - (manualDiscountPercent / 100));
+                        totalNegotiatedSavings += (annualBase - sCost);
+                    }
+
                     const hCost = shMo * 12;
-                    totalSoft += sCost; totalSh += hCost;
-                    timelineHtml += `<tr class="border-b border-slate-50 ${isY1 ? 'bg-purple-50' : ''}"><td class="py-4 px-2 font-bold text-slate-700">Year ${i} ${isY1 ? '⭐' : ''}</td><td class="text-center font-mono">${formatCurrency(sCost)}</td><td class="text-center font-mono">${formatCurrency(hCost)}</td><td class="text-right font-black">${formatCurrency(sCost + hCost + (isY1 ? finalImpCost : 0))}</td></tr>`;
-                }
-
-                const monthlyAnnualized = ((selected.monthly * (1 - selected.discount) * users) * 12) * rate;
-                const annualContractVal = (selected.annual * (1 - selected.discount) * users) * rate;
-                document.getElementById('monthly_comp_cost').innerText = `${formatCurrency(monthlyAnnualized)}`;
-                document.getElementById('annual_comp_cost').innerText = `${formatCurrency(annualContractVal)}`;
-                document.getElementById('annual_comp_savings').innerText = `SAVINGS: ${formatCurrency(monthlyAnnualized - annualContractVal)} / year`;
-
-                if (isFinancingEligible) {
-                    const principal = totalSoft + totalSh + finalImpCost;
-                    const monthlyRate = currentAPR / 12;
-                    const numPayments = term * 12;
-                    const monthlyPayment = principal * monthlyRate / (1 - (Math.pow(1 / (1 + monthlyRate), numPayments)));
-                    document.getElementById('finance_payment').innerText = `${formatCurrency(monthlyPayment)}`;
-                    document.getElementById('side_finance_payment').innerText = `${formatCurrency(monthlyPayment)}`;
-                    document.getElementById('finance_term_label').innerText = numPayments;
-                    document.getElementById('finance_apr_label').innerText = (currentAPR * 100).toFixed(2) + "%";
-                    document.getElementById('side_apr_note').innerText = `At ${(currentAPR * 100).toFixed(0)}% APR`;
+                    totalSoft += sCost; 
+                    totalSh += hCost;
+                    
+                    timelineHtml += `<tr class="border-b border-slate-50 ${isY1 ? 'bg-purple-50' : ''}">
+                        <td class="py-4 px-2 font-bold text-slate-700">Year ${i} ${isY1 ? '⭐' : ''}</td>
+                        <td class="text-center font-mono">${formatCurrency(sCost)}${!isY1 && manualDiscountPercent > 0 ? `<div class="text-[10px] text-blue-500 font-bold">-${manualDiscountPercent}%</div>` : ''}</td>
+                        <td class="text-center font-mono">${formatCurrency(hCost)}</td>
+                        <td class="text-right font-black">${formatCurrency(sCost + hCost + (isY1 ? finalImpCost : 0))}</td>
+                    </tr>`;
                 }
             }
 
-            document.getElementById('totalSavings').innerText = `${formatCurrency(softwareSavings + impSavings)}`;
+            document.getElementById('grandTotal').innerText = formatCurrency(totalSoft + totalSh + finalImpCost);
+            document.getElementById('totalSavings').innerText = formatCurrency(totalPromoSavings + impSavings);
+            document.getElementById('negotiatedSavings').innerText = formatCurrency(totalNegotiatedSavings);
             document.getElementById('timeline_body').innerHTML = timelineHtml;
-            document.getElementById('side_soft').innerText = `${formatCurrency(totalSoft)}`;
-            document.getElementById('side_sh').innerText = `${formatCurrency(totalSh)}`;
-            document.getElementById('side_imp').innerText = `${formatCurrency(finalImpCost)}`;
-            document.getElementById('grandTotal').innerText = `${formatCurrency(totalSoft + totalSh + finalImpCost)}`;
+            document.getElementById('side_soft').innerText = formatCurrency(totalSoft);
+            document.getElementById('side_sh').innerText = formatCurrency(totalSh);
+            document.getElementById('side_imp').innerText = formatCurrency(finalImpCost);
         }
-
-        // Run initial calculation
         calculate();
     </script>
 </body>
